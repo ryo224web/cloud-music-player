@@ -1,0 +1,7 @@
+name = "cloud-music-player-token"
+main = "box-token-worker.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+# アプリを公開する GitHub Pages のオリジン（必要なら書き換え）
+ALLOWED_ORIGINS = "https://ryo224web.github.io"

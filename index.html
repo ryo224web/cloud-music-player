@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111418">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BoxMusic">
+  <title>BoxMusic</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <button id="btnBack" class="icon-btn" hidden aria-label="戻る">‹</button>
+    <h1 id="viewTitle">ライブラリ</h1>
+    <span id="status" class="status"></span>
+  </header>
+
+  <main>
+    <!-- ライブラリ -->
+    <section id="view-library" class="view">
+      <div class="toolbar">
+        <input type="search" id="q" placeholder="曲名・アーティスト・フォルダで検索" autocomplete="off">
+      </div>
+      <div class="row-actions">
+        <button id="btnPlayAll" class="chip">▶ 全曲再生</button>
+        <button id="btnShuffleAll" class="chip">🔀 シャッフル</button>
+        <button id="btnOfflineOnly" class="chip" aria-pressed="false">⬇ オフライン保存済みのみ</button>
+      </div>
+      <p id="libInfo" class="muted small"></p>
+      <ul id="trackList" class="list"></ul>
+    </section>
+
+    <!-- プレイリスト一覧 -->
+    <section id="view-playlists" class="view" hidden>
+      <div class="row-actions">
+        <button id="btnNewPlaylist" class="chip">＋ 新しいプレイリスト</button>
+        <button id="btnSync" class="chip">⟳ 同期</button>
+      </div>
+      <ul id="playlistList" class="list"></ul>
+    </section>
+
+    <!-- プレイリスト詳細 -->
+    <section id="view-playlist" class="view" hidden>
+      <div class="row-actions">
+        <button id="btnPlPlay" class="chip">▶ 再生</button>
+        <button id="btnPlShuffle" class="chip">🔀 シャッフル</button>
+        <button id="btnPlOffline" class="chip">⬇ オフライン保存</button>
+        <button id="btnPlMenu" class="chip">⋯</button>
+      </div>
+      <p id="plInfo" class="muted small"></p>
+      <ul id="plTracks" class="list"></ul>
+    </section>
+
+    <!-- 再生中 -->
+    <section id="view-now" class="view" hidden>
+      <div class="now">
+        <div class="art-wrap">
+          <img id="nowArt" class="art" alt="" hidden>
+          <div id="nowArtPh" class="art ph">♪</div>
+          <div id="lyrics" class="lyrics" hidden></div>
+        </div>
+        <div class="now-meta">
+          <div id="nowTitle" class="now-title">再生していません</div>
+          <div id="nowArtist" class="muted"></div>
+        </div>
+        <div class="seek">
+          <input type="range" id="seek" min="0" max="1000" value="0" aria-label="再生位置">
+          <div class="times"><span id="tCur">0:00</span><span id="loadInfo" class="muted small"></span><span id="tDur">0:00</span></div>
+        </div>
+        <div class="controls">
+          <button id="btnShuffle" class="icon-btn toggle" aria-label="シャッフル">🔀</button>
+          <button id="btnPrev" class="icon-btn big" aria-label="前の曲">⏮</button>
+          <button id="btnPlay" class="icon-btn play" aria-label="再生/一時停止">▶</button>
+          <button id="btnNext" class="icon-btn big" aria-label="次の曲">⏭</button>
+          <button id="btnRepeat" class="icon-btn toggle" aria-label="リピート">🔁</button>
+        </div>
+        <div class="row-actions center">
+          <button id="btnLyrics" class="chip">歌詞</button>
+          <button id="btnEq" class="chip">イコライザー</button>
+          <button id="btnQueue" class="chip">再生キュー</button>
+          <button id="btnNowMenu" class="chip">⋯</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 設定 -->
+    <section id="view-settings" class="view" hidden>
+      <div class="card">
+        <h2>Box アカウント</h2>
+        <p id="acctInfo" class="muted">未ログイン</p>
+        <div class="row-actions">
+          <button id="btnLogin" class="chip primary">Box にログイン</button>
+          <button id="btnLogout" class="chip" hidden>ログアウト</button>
+        </div>
+        <details>
+          <summary class="small muted">接続設定（最初の1回だけ）</summary>
+          <label>Box Client ID<input id="cfgClientId" autocomplete="off"></label>
+          <label>トークン中継 URL（Cloudflare Worker）<input id="cfgProxy" placeholder="https://xxx.workers.dev" autocomplete="off"></label>
+          <button id="btnSaveCfg" class="chip">保存</button>
+          <hr>
+          <label>開発者トークンでお試し（60分で失効）<input id="cfgDevToken" autocomplete="off"></label>
+          <button id="btnDevToken" class="chip">このトークンを使う</button>
+        </details>
+      </div>
+
+      <div class="card">
+        <h2>音楽フォルダ</h2>
+        <p id="rootInfo" class="muted">未選択</p>
+        <div class="row-actions">
+          <button id="btnPickRoot" class="chip">フォルダを選ぶ</button>
+          <button id="btnRescan" class="chip">ライブラリを再スキャン</button>
+        </div>
+        <p class="small muted">プレイリストはこのフォルダ内の <code>boxmusic-playlists.json</code> に保存されるため、Mac と iPhone で同じものが使えます。</p>
+      </div>
+
+      <div class="card">
+        <h2>音質</h2>
+        <label class="switch"><input type="checkbox" id="cfgEq"> イコライザーを有効にする</label>
+        <p class="small muted">iPhone では、イコライザーを有効にするとロック中の曲送りが不安定になることがあります。安定性を優先する場合はオフにしてください（オフにした後は再読み込みで完全に元の再生方式に戻ります）。</p>
+      </div>
+
+      <div class="card">
+        <h2>オフライン / キャッシュ</h2>
+        <p id="cacheInfo" class="muted"></p>
+        <label>一時キャッシュの上限
+          <select id="cfgCacheLimit">
+            <option value="268435456">256 MB</option>
+            <option value="536870912">512 MB</option>
+            <option value="1073741824">1 GB</option>
+            <option value="2147483648">2 GB</option>
+            <option value="4294967296">4 GB</option>
+          </select>
+        </label>
+        <div class="row-actions">
+          <button id="btnClearCache" class="chip">一時キャッシュを削除</button>
+          <button id="btnClearAll" class="chip danger">オフライン保存も含めて全削除</button>
+        </div>
+      </div>
+      <p class="small muted center">BoxMusic v0.1</p>
+    </section>
+  </main>
+
+  <div id="mini" class="mini" hidden>
+    <div class="mini-progress"><div id="miniBar"></div></div>
+    <img id="miniArt" class="mini-art" alt="" hidden>
+    <div class="mini-text" id="miniOpen">
+      <div id="miniTitle" class="ellipsis"></div>
+      <div id="miniArtist" class="ellipsis muted small"></div>
+    </div>
+    <button id="miniPlay" class="icon-btn" aria-label="再生/一時停止">▶</button>
+    <button id="miniNext" class="icon-btn" aria-label="次の曲">⏭</button>
+  </div>
+
+  <nav class="tabs">
+    <button data-tab="library" class="active"><span>♫</span>ライブラリ</button>
+    <button data-tab="playlists"><span>☰</span>プレイリスト</button>
+    <button data-tab="now"><span>◉</span>再生中</button>
+    <button data-tab="settings"><span>⚙</span>設定</button>
+  </nav>
+
+  <div id="sheet" class="sheet" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-body">
+      <div class="sheet-head"><strong id="sheetTitle"></strong><button class="icon-btn" data-close aria-label="閉じる">✕</button></div>
+      <div id="sheetContent"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+  <audio id="audio" playsinline preload="auto"></audio>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
