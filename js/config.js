@@ -2,7 +2,7 @@
 // （設定画面で入力した値がある場合はそちらが優先されます）
 export const CONFIG = {
   // Box Developer Console で作成したアプリの Client ID
-  BOX_CLIENT_ID: '',
+  BOX_CLIENT_ID: '7bj4mbqrdj5vvcj2d5sgsg6dsipnjy8j',
   // worker/box-token-worker.js をデプロイした URL（末尾スラッシュなし）
   TOKEN_PROXY_URL: '',
 };
